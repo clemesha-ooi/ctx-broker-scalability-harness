@@ -1,0 +1,27 @@
+Task Description: "Develop a way to run 1000s of context agents (or some process posing as a context agent) to test the scalability of the service."
+
+
+Context Broker Component
+------------------------
+
+We need to dynamically create a Nimbus Context Broker dedicated for each scalability harness runs.
+
+? What time measurements to make? (Time it takes for all ctx-agents to complete)
+
+
+ctx-agent Component
+-------------------
+
+    * run 1000+ ctx-agent instances
+    * need to provide fake EC2 meta-data
+    * Each ctx-agent instance will be identified by a (fake) IP adress
+
+
+cloud client Component
+----------------------
+
+    * Need to use version "cloud-client-014". Need to set an environment variable with its path.
+    * cloud client "--extrahelp" flag: --broker-url <URL>   &   --broker-id <DN>
+    * cloud client wrapper code:http://ooici.net:82/?p=cpe.git;a=blob;f=cpe/provisioner/context.py
+    * cloud client wrapper example usage at http://ooici.net:82/?p=cpe.git;a=blob;f=cpe/provisioner/ec2.py#l56
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+  <workspace>
+    <name>ctx-broker</name>
+    <image>ctx-broker</image>
+    <quantity>1</quantity>
+    <nic wantlogin="true">public</nic>
+    <ctx>
+      <provides>
+          <identity />
+          <role>ctx-broker</role>
+      </provides>
+      <requires>
+          <identity />
+      </requires>
+    </ctx>
+  </workspace>
+</cluster>
