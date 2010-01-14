@@ -16,9 +16,11 @@ class ContextClient(object):
     """Interfaces with Nimbus cloud client to provide contextualization methods"""
 
 
-    def __init__(self):
+    def __init__(self, brokerUrl, brokerId):
         self._tempClusterPath = None
         self._tempDirPath = None
+        self.brokerUrl = brokerUrl
+        self.brokerId = brokerId
 
     def createFromString(self, cluster):
         """
@@ -45,7 +47,8 @@ class ContextClient(object):
         self._tempDirPath = tempfile.mkdtemp()
 
         args = [_CLOUD_CLIENT_BIN, '--init-context', self._tempDirPath,
-                '--cluster', clusterPath]
+                '--cluster', clusterPath, '--broker-url', self.brokerUrl,
+                '--broker-id', self.brokerId]
 
         proc = Popen(args, stdout=PIPE, stderr=STDOUT)
         (out,err) = proc.communicate()
