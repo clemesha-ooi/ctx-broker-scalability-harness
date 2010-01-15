@@ -45,6 +45,7 @@ class ContextClient(object):
             raise Exception(clusterPath+" does not exist")
 
         self._tempDirPath = tempfile.mkdtemp()
+        print self._tempDirPath
 
         args = [_CLOUD_CLIENT_BIN, '--init-context', self._tempDirPath,
                 '--cluster', clusterPath, '--broker-url', self.brokerUrl,
@@ -78,7 +79,8 @@ class ContextClient(object):
             epr = os.path.join(self._tempDirPath, 'context-epr.xml')
         args = ['sh', _WORKSPACE_BIN, '--ctx-monitor',
                 '--eprFile', epr,
-                '--poll-delay', str(poll_ms)]
+                '--poll-delay', str(poll_ms),
+                '-z', self.brokerId]
 
         proc = Popen(args, stdout=PIPE, stderr=STDOUT)
         (out,err) = proc.communicate()

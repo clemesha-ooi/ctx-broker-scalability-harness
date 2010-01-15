@@ -1,0 +1,36 @@
+<cluster xmlns="http://www.globus.org/2008/06/workspace/metadata/logistics">
+
+ <workspace>
+   <name>head-node</name>
+   <image>ami-xxxxxxxx</image>
+   <quantity>1</quantity>
+   <nic wantlogin="true">public</nic>
+   <ctx>
+     <provides>
+       <identity/>
+       <role>head-node</role>
+     </provides>
+     <requires>
+       <identity/>
+       <role name="worker-node" hostname="true" pubkey="true" />
+     </requires>
+   </ctx>
+ </workspace>
+ 
+ <workspace>
+   <name>worker-node</name>
+   <image>ami-xxxxxxxx</image>
+   <quantity>1000</quantity>
+   <nic wantlogin="true">public</nic>
+   <ctx>
+     <provides>
+       <identity/>
+       <role>worker-node</role>
+     </provides>
+     <requires>
+       <identity/>
+     </requires>
+   </ctx>
+ </workspace>
+
+</cluster>

@@ -10,8 +10,9 @@ if __name__ == "__main__":
 
     print broker_url, broker_id
 
-    clusterfile = EC2Config("test-1", "ami-xxxxxx", "xxx-keypair-xxx").toWorkspaceXml()
+    #clusterfile = EC2Config("test-1", "ami-xxxxxx", "xxx-keypair-xxx").toWorkspaceXml()
+    clusterfile = open("harness.xml").read()
     contextClient = ContextClient(broker_url, broker_id)
     print contextClient.createFromString(clusterfile)
-    time.sleep(3)
+    time.sleep(2)
     print contextClient.monitor()

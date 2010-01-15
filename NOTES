@@ -1,1 +1,40 @@
+Start harness environment
+=========================
+
+
+Start up harness broker
+-----------------------
+    a) start broker: $ ./nimbus-cloud-client-014/bin/cloud-client.sh --run --cluster broker.xml --hours 2
+    b) Must get harness broker Url, to pass to the cloud client.
+
+
+Create env for the harness ctx-agent
+------------------------------------
+    a) 'nimbus/ctx-agent' directory put in '/var/nimbus/ctx'
+    b) Must exist: /var/nimbus/ctx/tmp
+
+
+create context with ContextClient
+---------------------------------
+    a) run.py
+    b) use fake 'harness.xml' clusterfile
+    c) Must know *temp* directory created, to access userdata* files
+
+
+Run 'harness.py' ctx-agent
+--------------------------
+    a) Needs to import ctx-agent code (from 'nimbus/ctx-agent/lib/*')
+    b) Needs access to userdata*
+    c) Needs access to sshdkeypath
+
+
+
+Misc notes
+==========
+
+Added this cert:
+-----------------
 curl http://www.ci.uchicago.edu/~labisso/5eec901d.0 > nimbus-cloud-client-014/lib/certs/5eec901d.0
+
+
+
