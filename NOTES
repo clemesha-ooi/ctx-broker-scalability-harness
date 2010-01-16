@@ -10,8 +10,8 @@ Start up harness broker
 
 Create env for the harness ctx-agent
 ------------------------------------
-    a) 'nimbus/ctx-agent' directory put in '/var/nimbus/ctx'
-    b) Must exist: /var/nimbus/ctx/tmp
+    a) 'nimbus/ctx-agent' directory put in '/opt/nimbus/ctx'
+    b) Must exist: /opt/nimbus/ctx/tmp
 
 
 create context with ContextClient
