@@ -1,30 +1,6 @@
-import sys
-sys.path.append("nimbus/ctx-agent/ctx/lib/")
-import logging
-from actions import DefaultRetrieveAction, InstantiationResult, AmazonInstantiation
-from conf import getconfig, getCommonConf, getAmazonConf, DEFAULTCONFIG
-from ctx_logging import addFileLogging, configureLogging, getlog
-from utils import getlogfilepath, setlogfilepath
-from workspace_ctx_retrieve import parsersetup
+from string import Template 
 
-class AmazonInstantiationDummy(AmazonInstantiation):
-
-    def __init__(self, commonconf, ec2conf, **kwargs):
-        AmazonInstantiation.__init__(self, commonconf, ec2conf)
-        self.userdata = kwargs.get("userdata")
-
-    def get_stdout(self, url):
-        """
-        Uses 'url' as a key mapping to dummy
-        values for the test harness
-        """
-        print "get_stdout url => ", url
-        if url.endswith("user-data"):
-            udata = open(self.userdata).read()
-            return udata
-        return url+"1"
-
-DEFAULTCONFIG1 = """
+CONFIG_TEMPLATE = """
 
 # This is the default configuration file for the program.
 
@@ -87,7 +63,7 @@ curl: curl
 #    arg2: short hostname
 #    arg3: FQDN
 
-etchosts: /opt/nimbus1/ctx-scripts/0-etchosts.sh
+etchosts: $nimbus_dir/ctx-scripts/0-etchosts.sh
 
 
 #### 1-ipandhost
@@ -100,7 +76,7 @@ etchosts: /opt/nimbus1/ctx-scripts/0-etchosts.sh
 #    arg2: short hostname
 #    arg3: FQDN
 
-ipandhostdir: /opt/nimbus1/ctx-scripts/1-ipandhost
+ipandhostdir: $nimbus_dir/ctx-scripts/1-ipandhost
 
 
 #### 2-thishost
@@ -120,7 +96,7 @@ ipandhostdir: /opt/nimbus1/ctx-scripts/1-ipandhost
 # Particular scripts may be absent.  The entire directory configuration
 # may also be absent.
 
-thishostdir: /opt/nimbus1/ctx-scripts/2-thishost
+thishostdir: $nimbus_dir/ctx-scripts/2-thishost
 
 
 #### 3-data
@@ -130,7 +106,7 @@ thishostdir: /opt/nimbus1/ctx-scripts/2-thishost
 # that file absolute path is sent as only argument to the scripts.
 # The scripts are called after 'thishost' but before 'restarts'.
 
-datadir: /opt/nimbus1/ctx-scripts/3-data
+datadir: $nimbus_dir/ctx-scripts/3-data
 
 
 #### 4-restarts
@@ -146,7 +122,7 @@ datadir: /opt/nimbus1/ctx-scripts/3-data
 #
 # It is OK for the required role to not have a script in this directory.
 
-restartdir: /opt/nimbus1/ctx-scripts/4-restarts
+restartdir: $nimbus_dir/ctx-scripts/4-restarts
 
 
 #### 5-thishostfinalize
@@ -167,7 +143,7 @@ restartdir: /opt/nimbus1/ctx-scripts/4-restarts
 # Particular scripts may be absent.  The entire directory configuration
 # may also be absent.
 
-thishostfinalizedir: /opt/nimbus1/ctx-scripts/5-thishost-finalize
+thishostfinalizedir: $nimbus_dir/ctx-scripts/5-thishost-finalize
 
 
 # "problem" script
@@ -178,7 +154,7 @@ thishostfinalizedir: /opt/nimbus1/ctx-scripts/5-thishost-finalize
 # Must be configured if "--poweroff" (-p) argument is used, will not be
 # consulted if that argument is not used.
 
-problemscript: /opt/nimbus1/ctx-scripts/problem.sh
+problemscript: $nimbus_dir/ctx-scripts/problem.sh
 
 
 [ctxservice]
@@ -186,17 +162,17 @@ problemscript: /opt/nimbus1/ctx-scripts/problem.sh
 # logfile of the run
 # If config is missing, no log will be written and nothing will be sent to
 # service for error reporting.
-logfilepath: /opt/nimbus1/ctxlog.txt
+logfilepath: $nimbus_dir/ctxlog.txt
 
 # Directory where the program can write temporary files
-scratchspacedir: /opt/nimbus1/ctx/tmp
+scratchspacedir: $nimbus_dir/ctx/tmp
 
-retr_template: /opt/nimbus1/ctx/lib/retr-template-001.xml
-retr_template2: /opt/nimbus1/ctx/lib/retr-template-002.xml
-err_template: /opt/nimbus1/ctx/lib/err-template-001.xml
-err_template2: /opt/nimbus1/ctx/lib/err-template-002.xml
-ok_template: /opt/nimbus1/ctx/lib/ok-template-001.xml
-ok_template2: /opt/nimbus1/ctx/lib/ok-template-002.xml
+retr_template: $nimbus_dir/ctx/lib/retr-template-001.xml
+retr_template2: $nimbus_dir/ctx/lib/retr-template-002.xml
+err_template: $nimbus_dir/ctx/lib/err-template-001.xml
+err_template2: $nimbus_dir/ctx/lib/err-template-002.xml
+ok_template: $nimbus_dir/ctx/lib/ok-template-001.xml
+ok_template2: $nimbus_dir/ctx/lib/ok-template-002.xml
 
 
 
@@ -215,33 +191,9 @@ userdataURL:       http://169.254.169.254/2007-01-19/user-data
 
 """
 
-
+def render(nimbus_dir):
+    tmpl = Template(CONFIG_TEMPLATE)
+    return tmpl.substitute({"nimbus_dir":nimbus_dir})
 
 if __name__ == "__main__":
-    config = getconfig(string=DEFAULTCONFIG1)
-    parser = parsersetup()
-    (opts, args) = parser.parse_args()
-
-    commonconf = getCommonConf(opts, config)
-    commonconf.sshdkeypath="/Users/alexclemesha/.ssh/id_rsa.pub"
-
-    print "commonconf.logfilepath => ", commonconf.logfilepath
-    loglevel = logging.DEBUG
-    log = configureLogging(loglevel, trace=opts.trace)
-    addFileLogging(log, commonconf.logfilepath, None, loglevel, trace=opts.trace)
-    setlogfilepath(commonconf.logfilepath)
-    #log.debug("[file logging enabled @ '%s'] " % commonconf.logfilepath)
-
-    ec2conf = getAmazonConf(opts, config)
-    print "userdataURL => ", ec2conf.userdataURL
-    UDPATH="/var/folders/eK/eKugYWFkE7uHqQgecWLdHE+++TI/-Tmp-/tmpWal9zX"
-    USERDATA=UDPATH+"/userdata-1"
-
-    ec2_iaction = AmazonInstantiationDummy(commonconf, ec2conf, userdata=USERDATA)
-    ec2_iaction.run()
-    iactionresult = ec2_iaction.result
-    print iactionresult.ctx_keytext, iactionresult.ctx_certtext
-
-    dra = DefaultRetrieveAction(commonconf, iactionresult)
-    dra.run()
-
+    print render("/opt/nimbus")

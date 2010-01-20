@@ -20,7 +20,7 @@
  <workspace>
    <name>worker-node</name>
    <image>ami-xxxxxxxx</image>
-   <quantity>1</quantity>
+   <quantity>3</quantity>
    <nic wantlogin="true">public</nic>
    <ctx>
      <provides>
