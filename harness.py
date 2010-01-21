@@ -5,7 +5,7 @@ import os
 import shutil
 import logging
 from threading import Thread
-from actions import DefaultRetrieveAction, InstantiationResult, AmazonInstantiation
+from actions import DefaultRetrieveAction, InstantiationResult, AmazonInstantiation, DefaultOK
 from conf import getconfig, getCommonConf, getAmazonConf, DEFAULTCONFIG
 from ctx_logging import addFileLogging, configureLogging, getlog
 from utils import getlogfilepath, setlogfilepath
@@ -57,6 +57,19 @@ def create_nimbus_harness_dirs(total, base="/opt/nimbus"):
             shutil.copytree(base, newdir)
     return total
 
+def broker_ok(retrieve_action_instance):
+    timeout = 8
+    curlpath = retrieve_action_instance.common.curlpath
+    curlcmd = "%s --cert %s " % (curlpath, retrieve_action_instance.pub_pem_path)
+    curlcmd += "--key %s " % retrieve_action_instance.priv_pem_path
+    curlcmd += "--max-time %s " % timeout
+    curlcmd += " --insecure --random-file /dev/urandom --silent "
+    curlok = curlcmd + "--upload-file %s " % retrieve_action_instance.okdocumentpath
+    curlok += "%s" % retrieve_action_instance.instresult.ctx_url
+    dok = DefaultOK(curlok)
+    dok.run()
+
+
 def main(run_number, config_string, userdata):
     (commonconf, ec2conf, opts) = get_confs(config_string)
     commonconf.sshdkeypath=os.path.join(os.path.expanduser("~/"), ".ssh/id_rsa.pub") #XXX
@@ -66,6 +79,7 @@ def main(run_number, config_string, userdata):
     iactionresult = ec2_iaction.result
     dra = DefaultRetrieveAction(commonconf, iactionresult)
     dra.run()
+    broker_ok(dra)
 
 
 if __name__ == "__main__":
